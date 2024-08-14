@@ -14,19 +14,20 @@ client.on('qr', qr => {
 });
 
 client.on('message_create', message => {
-    console.log(message.body)
-	if (message.body != 'Bom dia! Eu sou o bot José, aqui para ajudar com perguntas acadêmicas e apoiar seus estudos. \nDigite: 01 para receber perguntas \nDigite: 02 para não receber perguntas.') {
-        if (message.body == '01') {
-            client.sendMessage(message.from,'Você escolheu 1')
-            return
-        } else if (message.body == 'Você escolheu 1') {
-            return
-        }
-		client.sendMessage(message.from, 'Bom dia, eu sou o bot José! \n Eu posso te enviar perguntas acadêmicas para você te apoiar nos seus estudos! \n Digite: 01; se você deseja receber \n Digite: 02; se não.');
+    console.log(message.body);
 
-	}
+    const welcomeMessage = 'Bom dia! Eu sou o bot José, estou aqui para ajudar com perguntas acadêmicas e apoiar seus estudos. \nDigite: 01 para receber perguntas \nDigite: 02 para encerrar.';
+
+    if (message.body === '01') {
+        client.sendMessage(message.from, 'Você escolheu 1. Aqui estão suas perguntas: \n1. Pergunta A \n2. Pergunta B \n\nDigite "gabarito" para ver as respostas.');
+    } else if (message.body.toLowerCase() === 'gabarito') {
+        client.sendMessage(message.from, 'Aqui está o gabarito: \n1. Resposta A \n2. Resposta B \n Digite: 02 para encerrar.');
+    } else if (message.body === '02') {
+        client.sendMessage(message.from, 'Você escolheu encerrar. Até a próxima!');
+    } else if (message.body !== welcomeMessage) {
+        client.sendMessage(message.from, welcomeMessage);
+    }
 });
 
 
 client.initialize();
-
