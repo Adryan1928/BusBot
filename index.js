@@ -2,6 +2,9 @@ const { Client, LocalAuth } = require('whatsapp-web.js');
 const qrcode = require('qrcode-terminal');
 const axios = require('axios');
 
+const url = 'https://botjose.pythonanywhere.com/api/questoes/';
+const urlLocal = 'http://localhost:8000/api/questoes/';
+
 const client = new Client({
     authStrategy: new LocalAuth()
 });
@@ -16,15 +19,13 @@ client.on('qr', qr => {
 
 client.on('message_create', message => {
     console.log(message.from);
-
+    message.body = message.body.toLowerCase();
     const welcomeMessage = 'Bom dia! Eu sou o bot José, estou aqui para ajudar com perguntas acadêmicas e apoiar seus estudos. \nDigite: 01 para receber perguntas \nDigite: 02 para encerrar.';
 
     if (message.body === '01') {
-        axios.get('https://botjose.pythonanywhere.com/api/questoes/').then(response => {
-            console.log('oi' + JSON.stringify(response.data));
+        axios.get(`${urlLocal}`).then(response => {
             let questions = '';
             for (let question of response.data) {
-                console.log(question)
                 questions += `${question.id}) ${question.pergunta} \n`;
             }
             client.sendMessage(message.from, 'Você escolheu 1. Aqui estão suas perguntas: \n \n' + questions + '\nDigite o número da questão que deseja responder. \n\nSiga este model: questão=(número da questão) \nExemplo: questão=1');
@@ -36,16 +37,14 @@ client.on('message_create', message => {
         client.sendMessage(message.from, 'Estamos encerrando por aqui. Até a próxima!');
     } else if (message.body === '02') {
         client.sendMessage(message.from, 'Você escolheu encerrar. Até a próxima!');
-    } else if (message.body !== welcomeMessage) {
+    } else if (message.body !== welcomeMessage.toLowerCase()) {
         if (message.body.substring(0, 8) === 'questão=') {
             let questionNumber = message.body.substring(8, message.body.length);
-            console.log('questionNumber'+questionNumber);
-            axios.get(`https://botjose.pythonanywhere.com/api/questoes/${questionNumber}/`).then(response => {
-                console.log('questão' + JSON.stringify(response.data));
+            axios.get(`${urlLocal}${questionNumber}/`).then(response => {
                 let question = response.data;
                 let alternativas = ''
                 let letra = 0;
-                let letras = ['A', 'B', 'C', 'D', 'E'];
+                let letras = ['a', 'b', 'c', 'd', 'e'];
                 for (let alternativa of question.alternativas) {
                     alternativas += `${letras[letra]}) ${alternativa.nome} \n`;
                     letra++;
@@ -56,14 +55,11 @@ client.on('message_create', message => {
             let alternativaLetra = message.body.substring(12, message.body.length);
             let letra = alternativaLetra.substring(0, 1);
             let questionNumber = alternativaLetra.substring(10, alternativaLetra.length);
-            console.log('letra' + letra);
-            console.log('questionNumber' + questionNumber);
-            axios.get(`https://botjose.pythonanywhere.com/api/questoes/${questionNumber}/`).then(response => {
-                console.log('questão' + JSON.stringify(response.data));
+            axios.get(`${urlLocal}${questionNumber}/`).then(response => {
                 let acertou = false;
                 let question = response.data;
                 let numeroLetra = 0;
-                let letras = ['A', 'B', 'C', 'D', 'E'];
+                let letras = ['a', 'b', 'c', 'd', 'e'];
                 for (let alternativa of question.alternativas) {
 
                     if (letras[numeroLetra] === letra) {
